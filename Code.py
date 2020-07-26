@@ -11,24 +11,24 @@ files = np.asarray(files)
 
 # Converting to Values
 data = []
+x = []
 y = []
+
 for file in files: 
-    ld, _ = librosa.load(file, sr = 16000, mono = True)   
-    data.append(ld)
-    y.append(file[62])
+    linear_data, _ = librosa.load(file, sr = 16000, mono = True)   
+    data.append(linear_data)
+    y.append(file[68])          #Depends on Path of files
 
 # Extracting Features
-x = []
 for i in range(len(data)):
     x.append(abs(librosa.stft(data[i]).mean(axis = 1).T))
 x = np.array(x)
 x = x.reshape(x.shape[0], x.shape[1], 1)
 
 # Encoding Categorical Features
+from sklearn.preprocessing import OneHotEncoder
 y = np.array(y)
 y = y.reshape(-1,1)
-
-from sklearn.preprocessing import OneHotEncoder
 enc = OneHotEncoder()
 y = enc.fit_transform(y).toarray()
 
@@ -47,7 +47,7 @@ classifier = Sequential()
 classifier.add(Convolution1D(filters = 64, kernel_size = 6, activation = 'relu', input_shape = (1025,1)))
 classifier.add(Convolution1D(filters = 64, kernel_size = 6, activation = 'relu'))
 classifier.add(MaxPooling1D(pool_size = 4))
-classifier.add(Dropout(0.2))
+classifier.add(Dropout(0.5))
 classifier.add(Flatten())
 classifier.add(Dense(units = 32, activation = 'relu'))
 classifier.add(Dense(units = 10, activation = 'softmax'))
@@ -55,7 +55,7 @@ classifier.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['
 classifier.summary()
 
 # Fitting and Predicting
-classifier.fit(x_train, y_train, epochs=20, batch_size=10)
+classifier.fit(x_train, y_train, epochs=40, batch_size=10)
 y_pred = classifier.predict(x_test)
 _, accuracy = classifier.evaluate(x_test, y_test, batch_size=16)
 y_pred = (y_pred > 0.5)
