@@ -1,9 +1,7 @@
-import time
 import wave
 import pyaudio
 import librosa
 import numpy as np
-import matplotlib.pyplot as plt
 from tensorflow.keras.models import load_model
 
 
