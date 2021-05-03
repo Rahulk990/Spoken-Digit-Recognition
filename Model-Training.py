@@ -4,7 +4,7 @@ import librosa
 import librosa.display
 
 # Importing Data
-path = "DataSet\\"
+path = "Dataset\\"
 files = librosa.util.find_files(path, ext=['wav']) 
 files = np.asarray(files)
 
@@ -16,7 +16,7 @@ y = []
 for file in files: 
     linear_data, _ = librosa.load(file, sr = 16000, mono = True)   
     data.append(linear_data)
-    y.append(file[68])          #Depends on Path of files
+    y.append(file[50])          #Depends on Path of files
 
 # Extracting Features
 for i in range(len(data)):
@@ -43,43 +43,27 @@ from tensorflow.keras.layers import Flatten
 from tensorflow.keras.layers import Dense, Dropout
 
 classifier = Sequential()
-classifier.add(Convolution1D(filters = 64, kernel_size = 6, activation = 'relu', input_shape = (1025,1)))
-classifier.add(Convolution1D(filters = 64, kernel_size = 6, activation = 'relu'))
+classifier.add(Convolution1D(filters = 128, kernel_size = 6, activation = 'relu', input_shape = (1025,1)))
+classifier.add(Convolution1D(filters = 128, kernel_size = 6, activation = 'relu'))
+classifier.add(MaxPooling1D(pool_size = 4))
+classifier.add(Dropout(0.5))
+classifier.add(Convolution1D(filters = 128, kernel_size = 6, activation = 'relu'))
+classifier.add(Convolution1D(filters = 128, kernel_size = 6, activation = 'relu'))
 classifier.add(MaxPooling1D(pool_size = 4))
 classifier.add(Dropout(0.5))
 classifier.add(Flatten())
-classifier.add(Dense(units = 32, activation = 'relu'))
+classifier.add(Dense(units = 64, activation = 'relu'))
 classifier.add(Dense(units = 10, activation = 'softmax'))
 classifier.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 classifier.summary()
 
 # Fitting and Predicting
-classifier.fit(x_train, y_train, epochs=40, batch_size=10)
+classifier.fit(x_train, y_train, epochs=30, batch_size=16, validation_split=0.1)
 y_pred = classifier.predict(x_test)
 _, accuracy = classifier.evaluate(x_test, y_test, batch_size=16)
 y_pred = (y_pred > 0.5)
 y_test = (y_test == 1)
-
-def cvt(y):
-    ny = []
-    for i in y:
-        f = 0
-        for j in range(10):
-            if(i[j] == 1):
-                ny.append(j)
-                f = 1
-        if f == 0:
-            ny.append(-1)
-    return ny
-y_pred = cvt(y_pred)
-y_test = cvt(y_test)
-
-# Confusion Matrix
-from mlxtend.evaluate import confusion_matrix
-import mlxtend.plotting.plot_confusion_matrix
-cm = confusion_matrix(y_test, y_pred, False, True)
-fig, ax = mlxtend.plotting.plot_confusion_matrix(conf_mat=cm)
-plt.show()
+print(accuracy)
 
 # Saving model
 classifier.save('model.h5')

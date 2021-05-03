@@ -4,7 +4,6 @@ import librosa
 import numpy as np
 from tensorflow.keras.models import load_model
 
-
 class AudioHandler():
     def __init__(self):
         self.FORMAT = pyaudio.paInt32
