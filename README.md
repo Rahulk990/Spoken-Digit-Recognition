@@ -13,6 +13,7 @@ The model consists of:
 - Optimization Algorithm: Adam
 
 Model is trained on 30 epochs using a batch size of 16
+
 Accuracy: 86%
 
 ## _Usage_
