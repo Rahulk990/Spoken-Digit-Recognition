@@ -55,11 +55,7 @@ def Predictor():
     model = load_model('model.h5')
     y_pred = model.predict(x)
     print (y_pred)
-    
-    y_pred = (y_pred > 0.5)
-    for i in range(len(y_pred[0])):
-        if y_pred[0][i]:
-            print(i)
+    print(y_pred.argmax())
 
 if __name__ == '__main__':
     
